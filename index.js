@@ -1,8 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
-const { MongoClient, ServerApiVersion } = require("mongodb");
 require("dotenv").config();
+const { MongoClient, ServerApiVersion } = require("mongodb");
+
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -16,7 +17,21 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-
+function verifyJWT(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).send({ message: "UnAuthorized access" });
+    }
+    const token = authHeader.split(" ")[1];
+    console.log(token)
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+      if (err) {
+        return res.status(403).send({ message: "Forbidden access" });
+      }
+      req.decoded = decoded;
+      next();
+    });
+  }
 
 async function run() {
   try {
@@ -34,7 +49,7 @@ async function run() {
         }
     };
 
-    app.get("/user", async (req, res) => {
+    app.get("/user",verifyJWT, async (req, res) => {
         const users = await userCollection.find().toArray();
         res.send(users);
       });
@@ -45,7 +60,7 @@ async function run() {
         res.send({ admin: isAdmin });
       });
   
-      app.put("/user/admin/:email" , verifyAdmin,async (req, res) => {
+      app.put("/user/admin/:email" ,verifyJWT, verifyAdmin,async (req, res) => {
         const email = req.params.email;
   
         const filter = { email: email };
@@ -72,7 +87,7 @@ async function run() {
           process.env.ACCESS_TOKEN_SECRET,
           { expiresIn: "1h" }
         );
-        res.send({ result });
+        res.send({ result, token });
       });
   } finally {
   }
