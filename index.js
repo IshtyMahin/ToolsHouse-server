@@ -37,6 +37,7 @@ async function run() {
   try {
     await client.connect();
     const userCollection = client.db("assignment12").collection("users");
+    const reviewCollection = client.db("assignment12").collection("reviews");
 
     const verifyAdmin = async (req,res,next)=>{
         const requester = req.decoded.email;
@@ -88,6 +89,14 @@ async function run() {
           { expiresIn: "1h" }
         );
         res.send({ result, token });
+      });
+
+      
+
+      app.post("/review",async (req, res) => {
+        const review = req.body;
+        const result = await reviewCollection.insertOne(review);
+        res.send(result);
       });
   } finally {
   }
