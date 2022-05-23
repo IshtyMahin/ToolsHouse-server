@@ -38,6 +38,7 @@ async function run() {
     await client.connect();
     const userCollection = client.db("assignment12").collection("users");
     const reviewCollection = client.db("assignment12").collection("reviews");
+    const productCollection = client.db("assignment12").collection("products");
 
     const verifyAdmin = async (req,res,next)=>{
         const requester = req.decoded.email;
@@ -102,11 +103,15 @@ async function run() {
         res.send(result);
       });
 
+      app.get('/product',verifyJWT,async(req,res)=>{
+          const products = await productCollection.find().toArray();
+          res.send(products);
+      })
 
-      app.post('/product',async(req,res)=>{
+      app.post('/product', verifyJWT, verifyAdmin,async(req,res)=>{
           const product =req.body;
           const result = await productCollection.insertOne(product);
-          res.send(product);
+          res.send(result);
       })
   } finally {
   }
