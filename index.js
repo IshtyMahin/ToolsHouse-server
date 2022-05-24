@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -55,6 +55,8 @@ async function run() {
         const users = await userCollection.find().toArray();
         res.send(users);
       });
+
+    
       app.get("/admin/:email", async (req, res) => {
         const email = req.params.email;
         const user = await userCollection.findOne({ email: email });
@@ -78,6 +80,7 @@ async function run() {
       app.put("/user/:email", async (req, res) => {
         const email = req.params.email;
         const user = req.body;
+        console.log(user)
         const filter = { email: email };
         const options = { upsert: true };
         const updateDoc = {
@@ -108,11 +111,13 @@ async function run() {
           res.send(products);
       })
 
-      app.post('/product', verifyJWT, verifyAdmin,async(req,res)=>{
+      app.post('/product',async(req,res)=>{
           const product =req.body;
           const result = await productCollection.insertOne(product);
           res.send(result);
       })
+
+     
   } finally {
   }
 }
