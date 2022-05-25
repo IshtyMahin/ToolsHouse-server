@@ -39,6 +39,7 @@ async function run() {
     const userCollection = client.db("assignment12").collection("users");
     const reviewCollection = client.db("assignment12").collection("reviews");
     const productCollection = client.db("assignment12").collection("products");
+    const orderCollection = client.db("assignment12").collection("orders");
 
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
@@ -52,7 +53,7 @@ async function run() {
       }
     };
 
-    app.get("/user", verifyJWT, async (req, res) => {
+    app.get("/user", async (req, res) => {
       const users = await userCollection.find().toArray();
       res.send(users);
     });
@@ -63,6 +64,7 @@ async function run() {
 
       res.send(user);
     });
+
     app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
       const user = await userCollection.findOne({ email: email });
@@ -116,10 +118,22 @@ async function run() {
       const products = await productCollection.find().toArray();
       res.send(products);
     });
-
+    app.get('/product/:id',verifyJWT,async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id:ObjectId(id)};
+      const product = await productCollection.findOne(query);
+      res.send(product);
+    })
     app.post("/product", async (req, res) => {
       const product = req.body;
       const result = await productCollection.insertOne(product);
+      res.send(result);
+    });
+   
+
+    app.post("/order", async (req, res) => {
+      const order = req.body;
+      const result = await orderCollection.insertOne(order);
       res.send(result);
     });
   } finally {
