@@ -23,7 +23,7 @@ function verifyJWT(req, res, next) {
     return res.status(401).send({ message: "UnAuthorized access" });
   }
   const token = authHeader.split(" ")[1];
-  console.log(token);
+  
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
     if (err) {
       return res.status(403).send({ message: "Forbidden access" });
@@ -88,7 +88,7 @@ async function run() {
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
-      console.log(user);
+     
       const filter = { email: email };
       const options = { upsert: true };
       const updateDoc = {
@@ -114,6 +114,7 @@ async function run() {
       res.send(result);
     });
 
+    /// product  
     app.get("/product", async (req, res) => {
       const products = await productCollection.find().toArray();
       res.send(products);
@@ -129,13 +130,33 @@ async function run() {
       const result = await productCollection.insertOne(product);
       res.send(result);
     });
-   
 
-    app.post("/order", async (req, res) => {
+    app.delete("/product/:id", verifyJWT, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = {_id:ObjectId(id)};
+      const result = await productCollection.deleteOne(query);
+      res.send(result);
+    });
+   
+    app.get("/order", async (req, res) => {
+      const order = await orderCollection.find().toArray();
+      res.send(order);
+    });
+    app.post("/order",verifyJWT, async (req, res) => {
       const order = req.body;
+      console.log(order)
       const result = await orderCollection.insertOne(order);
       res.send(result);
     });
+    app.get("/order/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email }
+      const order = await orderCollection.find(query).toArray();
+      console.log(order)
+      
+      res.send(order);
+    });
+    
   } finally {
   }
 }
