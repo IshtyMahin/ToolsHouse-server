@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "worker": "node index.js",
-    "start": "node index.js ",
-    "start-dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "worker":"node index.js",
+    "start":"node index.js ",
+    "start-dev":"nodemon index.js",
+    "test":"echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
